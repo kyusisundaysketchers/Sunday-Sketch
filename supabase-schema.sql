@@ -1,0 +1,138 @@
+-- Kyusi Sunday Sketchers — Admin schema
+-- Run this once in the Supabase SQL editor (Project → SQL Editor → New query).
+-- It creates the tables, the is_admin() authorization check, Row Level
+-- Security policies, and seeds them with the site's current real content.
+
+create table if not exists admins (
+  user_id uuid primary key references auth.users(id),
+  email text not null
+);
+
+create table if not exists budget_items (
+  id uuid primary key default gen_random_uuid(),
+  category text not null,
+  working_amount numeric,
+  alt_amount numeric,      -- only set for the row that has a toggleable alternative (Models)
+  quoted_amount numeric,
+  sort_order int not null default 0
+);
+
+create table if not exists open_items (
+  id uuid primary key default gen_random_uuid(),
+  label text not null,
+  done boolean not null default false,
+  sort_order int not null default 0
+);
+
+create table if not exists admin_content (
+  section_key text primary key,   -- 'models' | 'venue' | 'registration_details' | 'next_meeting' | 'budget_note'
+  payload jsonb not null,
+  updated_at timestamptz not null default now()
+);
+
+-- Server-side authorization check. SECURITY DEFINER so it can read `admins`
+-- (which has no client-facing policies) on the caller's behalf.
+create or replace function is_admin()
+returns boolean language sql security definer stable as $$
+  select exists (select 1 from admins where user_id = auth.uid());
+$$;
+
+alter table budget_items enable row level security;
+alter table open_items enable row level security;
+alter table admin_content enable row level security;
+alter table admins enable row level security; -- no policies below = deny all direct client access
+
+create policy "admins can read budget" on budget_items for select using (is_admin());
+create policy "admins can read open items" on open_items for select using (is_admin());
+create policy "admins can update open items" on open_items for update using (is_admin());
+create policy "admins can read admin content" on admin_content for select using (is_admin());
+
+-- ---------------------------------------------------------------------
+-- Seed data — reproduces the page's current real content exactly.
+-- ---------------------------------------------------------------------
+
+insert into budget_items (category, working_amount, alt_amount, quoted_amount, sort_order) values
+  ('Models · 3', 9000, 10000, null, 0),
+  ('Costumes and styling', null, null, null, 1),
+  ('Materials', null, null, null, 2),
+  ('Food and snacks', null, null, null, 3),
+  ('Marketing and ads', null, null, null, 4),
+  ('Printing and posters', null, null, null, 5),
+  ('Tarp and signage', null, null, null, 6),
+  ('Seating', null, null, null, 7),
+  ('Miscellaneous', null, null, null, 8);
+
+insert into open_items (label, sort_order) values
+  ('Model selection and fees', 0),
+  ('Long pose: 10 or 15 minutes', 1),
+  ('Colour group rotation', 2),
+  ('Age restriction and waiver', 3),
+  ('Final event budget', 4),
+  ('Food and snack arrangement', 5),
+  ('Seating requirements', 6),
+  ('Signage and printing quantity', 7),
+  ('LATAG and challenge format', 8),
+  ('Owner for marketing and social', 9),
+  ('Owner for materials and chairs', 10),
+  ('Final venue layout', 11);
+
+insert into admin_content (section_key, payload) values
+('models', '{
+  "eyebrow": "Names TBC",
+  "rate_note": "Working rate is around ₱3,000 each. The later discussion pushed the allocation towards ₱10,000 for the three.",
+  "items": [
+    {"text":"Availability and fee per model","open":true},
+    {"text":"Clothed or nude, and which station","open":true},
+    {"text":"Filipino-inspired concept and styling","open":false},
+    {"text":"Backup models if the first choices decline","open":false}
+  ],
+  "note": "Model names in the transcript are unclear. Do not treat any name as booked until the fee is agreed."
+}'::jsonb),
+
+('venue', '{
+  "layout_zones": ["Three station areas","LATAG / common area","Registration and entrance","Food and snacks","Tarp and signage"],
+  "bring_on_day": ["Colour tags and name tags","Attendance sheet","One trash bag per station","Tape and basic station materials","Monoblock chairs, only if needed"],
+  "spend_note": "Use the benches and floor seating first. Reuse the generic tarp if one exists, and print A3 posters for anything event specific. Buy a new large tarp only if the venue needs it.",
+  "spend_tag": "Seating count after layout is locked",
+  "latag_note": "LATAG is the common area session in the open space, not a fourth station. A one-minute sketch challenge was floated for this slot. It is an option, not a decision.",
+  "claygo_note": "Clean as you go, with a trash bag at every station. Confirm the bag size and count with the venue before the day."
+}'::jsonb),
+
+('registration_details', '{
+  "blocker_lede": "This one gates everything else. Registration cannot open until the age rule and the waiver are agreed, because the event may involve nude modelling.",
+  "decide": ["Minimum age","PG-13 restriction, or 18+","Guardian consent, if minors are allowed"],
+  "write": ["Waiver wording","Consent line on the form","House rules on photos"],
+  "update": ["Google Form fields","Age question, required","Confirmation email copy"],
+  "order_of_work": "Agree the age rule, then update the form, then open registration. Do not promote the link before the form is correct."
+}'::jsonb),
+
+('next_meeting', '{
+  "month": 8, "day": 25, "hour": 22, "minute": 0,
+  "blurb": "This meeting moves the plan from brainstorm to confirmation. Bring a status, a quotation or a recommendation for whatever you own.",
+  "bring": [
+    {"label":"Flow.","text":"Rotation sequence, final pose timing, LATAG format, real end time."},
+    {"label":"Models.","text":"Three names, fees agreed, styling per station."},
+    {"label":"Registration.","text":"Age rule decided, form updated, waiver drafted."},
+    {"label":"Logistics.","text":"Venue layout, seating count, tags, trash bags, printing."},
+    {"label":"Marketing.","text":"Save the date asset, ad budget, owner per platform."},
+    {"label":"Budget.","text":"One consolidated sheet with quotations replacing guesses."}
+  ]
+}'::jsonb),
+
+('budget_note', '{
+  "text": "A handwritten ₱11,500 and a later ₱43,000 both appear in the notes. Neither has clear components behind it. Do not quote either as the event budget until the categories above are filled in."
+}'::jsonb);
+
+-- ---------------------------------------------------------------------
+-- After running the above:
+--
+-- 1. Authentication → Providers → turn OFF public sign-ups (defense in
+--    depth; is_admin() already denies anyone not in `admins` regardless).
+-- 2. Authentication → Users → Add user, once for each of the two real
+--    organiser accounts (real email + a password they choose).
+-- 3. For each user created in step 2, copy their UUID and run:
+--      insert into admins (user_id, email) values ('<uuid>', 'name@example.com');
+-- 4. Project Settings → API → copy the Project URL and the "anon public"
+--    key into index.html, replacing YOUR_SUPABASE_PROJECT_URL and
+--    YOUR_SUPABASE_ANON_KEY. Never use the "service_role" key here.
+-- ---------------------------------------------------------------------
