@@ -439,6 +439,14 @@ footer{border-top:1px solid var(--ink);padding:44px 0 60px;font-family:"Space Mo
         <button class="btn primary" type="submit">Sign in</button>
         <p class="form-msg" id="loginMsg" role="status" aria-live="polite"></p>
       </form>
+      <form id="invitePasswordForm" class="card" style="max-width:420px" hidden>
+        <h3>Set your password</h3>
+        <p style="color:var(--ink-soft);margin-top:12px">Choose a password for your organiser account, then you’ll be taken to the private dashboard.</p>
+        <div class="field" style="margin-top:18px"><label for="invitePassword">New password</label><input type="password" id="invitePassword" autocomplete="new-password" minlength="8" required></div>
+        <div class="field"><label for="invitePasswordConfirm">Confirm password</label><input type="password" id="invitePasswordConfirm" autocomplete="new-password" minlength="8" required></div>
+        <button class="btn primary" type="submit">Set password</button>
+        <p class="form-msg" id="invitePasswordMsg" role="status" aria-live="polite"></p>
+      </form>
     </div>
 
     <div id="adminArea" hidden>
@@ -765,6 +773,7 @@ footer{border-top:1px solid var(--ink);padding:44px 0 60px;font-family:"Space Mo
   var SUPABASE_ANON_KEY = "sb_publishable_RpsnXXy4SVpROSmLi_hDVg_dIcOGw_7";
 
   var configured = SUPABASE_URL.indexOf("YOUR_") !== 0 && SUPABASE_ANON_KEY.indexOf("YOUR_") !== 0;
+  var isInviteLink = /(?:^|[&#])type=invite(?:&|$)/.test(location.hash);
   var client = (configured && window.supabase) ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
 
   var MONTHS = ["January","February","March","April","May","June","July","August","September","October","November","December"];
@@ -774,6 +783,8 @@ footer{border-top:1px solid var(--ink);padding:44px 0 60px;font-family:"Space Mo
   var area = document.getElementById("adminArea");
   var loginForm = document.getElementById("loginForm");
   var loginMsg = document.getElementById("loginMsg");
+  var invitePasswordForm = document.getElementById("invitePasswordForm");
+  var invitePasswordMsg = document.getElementById("invitePasswordMsg");
   var adminEmailEl = document.getElementById("adminEmail");
   var logoutBtn = document.getElementById("logoutBtn");
   var adminNavBtn = document.getElementById("adminNavBtn");
@@ -813,6 +824,20 @@ footer{border-top:1px solid var(--ink);padding:44px 0 60px;font-family:"Space Mo
   async function fail(msg){
     if (client) { try { await client.auth.signOut(); } catch(e){} }
     showGate(msg, true);
+  }
+
+  function showInvitePasswordSetup(){
+    if (!invitePasswordForm) return;
+    loginForm.hidden = true;
+    invitePasswordForm.hidden = false;
+    invitePasswordMsg.textContent = "";
+    invitePasswordMsg.className = "form-msg";
+  }
+
+  function showLoginAfterInvite(msg){
+    if (invitePasswordForm) invitePasswordForm.hidden = true;
+    loginForm.hidden = false;
+    showGate(msg, false);
   }
 
   function renderModels(m){
@@ -1046,6 +1071,34 @@ footer{border-top:1px solid var(--ink);padding:44px 0 60px;font-family:"Space Mo
     await loadAdminData();
   });
 
+  if (invitePasswordForm){
+    invitePasswordForm.addEventListener("submit", async function(e){
+      e.preventDefault();
+      if (!client){
+        invitePasswordMsg.textContent = "Admin isn't configured yet.";
+        invitePasswordMsg.className = "form-msg err";
+        return;
+      }
+      var password = document.getElementById("invitePassword").value;
+      var confirmation = document.getElementById("invitePasswordConfirm").value;
+      if (password !== confirmation){
+        invitePasswordMsg.textContent = "Passwords do not match.";
+        invitePasswordMsg.className = "form-msg err";
+        return;
+      }
+      invitePasswordMsg.textContent = "Saving password…";
+      invitePasswordMsg.className = "form-msg ok";
+      var res = await client.auth.updateUser({ password: password });
+      if (res.error){
+        invitePasswordMsg.textContent = res.error.message || "Couldn't set your password.";
+        invitePasswordMsg.className = "form-msg err";
+        return;
+      }
+      history.replaceState(null, "", location.pathname + location.search + "#admin");
+      await loadAdminData();
+    });
+  }
+
   if (logoutBtn){
     logoutBtn.addEventListener("click", async function(){
       if (client) { try { await client.auth.signOut(); } catch(e){} }
@@ -1064,6 +1117,10 @@ footer{border-top:1px solid var(--ink);padding:44px 0 60px;font-family:"Space Mo
     if (!client) return; // gate stays visible with its default state; login attempt will explain
     try{
       var sessionRes = await client.auth.getSession();
+      if (isInviteLink && sessionRes.data && sessionRes.data.session){
+        showInvitePasswordSetup();
+        return;
+      }
       if (sessionRes.data && sessionRes.data.session){
         await loadAdminData();
       }
