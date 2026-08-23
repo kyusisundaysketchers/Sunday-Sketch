@@ -124,15 +124,50 @@ insert into admin_content (section_key, payload) values
 }'::jsonb);
 
 -- ---------------------------------------------------------------------
--- After running the above:
+-- Admin accounts
+-- ---------------------------------------------------------------------
+-- This does NOT need real UUIDs typed in by hand — it looks each user up
+-- in auth.users by email, so it only works AFTER each account below has
+-- been created in Authentication → Users (with a password set directly
+-- in that dialog, so no invite/reset email is sent). Re-run it any time
+-- after adding more accounts; already-admitted users are skipped.
 --
--- 1. Authentication → Providers → turn OFF public sign-ups (defense in
+-- NOTE: "cluelessrex@@gmail.com" has a double "@" and is not a valid
+-- email address as written — it won't match any Supabase account, so
+-- this insert silently skips it. Fix the address (single "@") and re-run
+-- this block once you know the correct one.
+--
+-- NOTE: this list is five accounts, not the two the admin area's own
+-- copy still says ("restricted to the two organisers who manage them" —
+-- see index.html's Admin sign-in lede). Worth deciding whether that
+-- wording should be updated, or the account list trimmed back to two.
+
+insert into admins (user_id, email)
+select id, email from auth.users
+where email in (
+  'rm202mnla@gmail.com',
+  'vaughnpinpin@gmail.com',
+  'manzano.rrt@gmail.com',
+  'kyusisunday@gmail.com',
+  'cluelessrex@gmail.com'  -- corrected from the double-@ typo; confirm this is right
+)
+on conflict (user_id) do nothing;
+
+-- ---------------------------------------------------------------------
+-- Full setup order:
+--
+-- 1. Run everything above this section once.
+-- 2. Authentication → Providers → turn OFF public sign-ups (defense in
 --    depth; is_admin() already denies anyone not in `admins` regardless).
--- 2. Authentication → Users → Add user, once for each of the two real
---    organiser accounts (real email + a password they choose).
--- 3. For each user created in step 2, copy their UUID and run:
---      insert into admins (user_id, email) values ('<uuid>', 'name@example.com');
--- 4. Project Settings → API → copy the Project URL and the "anon public"
+-- 3. Authentication → Users → Add user → Create new user, once per
+--    account above. Set the password directly in that dialog and toggle
+--    Auto Confirm User on — this avoids Supabase's invite/reset email
+--    (and its rate limit) entirely.
+-- 4. Run the `insert into admins ...` block above (or re-run it after
+--    adding more accounts later).
+-- 5. Project Settings → API → copy the Project URL and the "anon public"
 --    key into index.html, replacing YOUR_SUPABASE_PROJECT_URL and
 --    YOUR_SUPABASE_ANON_KEY. Never use the "service_role" key here.
+--    (Already done as of the "Support Supabase invitation password
+--    setup" commit, if you're reading this after that.)
 -- ---------------------------------------------------------------------
