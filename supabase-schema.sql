@@ -1,7 +1,10 @@
 -- Kyusi Sunday Sketchers — Admin schema
--- Run this once in the Supabase SQL editor (Project → SQL Editor → New query).
+-- Run this in the Supabase SQL editor (Project → SQL Editor → New query).
 -- It creates the tables, the is_admin() authorization check, Row Level
 -- Security policies, and seeds them with the site's current real content.
+-- Safe to run more than once: table/policy/seed statements are all
+-- idempotent, and re-running never overwrites data you've since edited
+-- in the Supabase table editor (every seed insert is ON CONFLICT DO NOTHING).
 
 create table if not exists admins (
   user_id uuid primary key references auth.users(id),
@@ -10,7 +13,7 @@ create table if not exists admins (
 
 create table if not exists budget_items (
   id uuid primary key default gen_random_uuid(),
-  category text not null,
+  category text not null unique,
   working_amount numeric,
   alt_amount numeric,      -- only set for the row that has a toggleable alternative (Models)
   quoted_amount numeric,
@@ -19,7 +22,7 @@ create table if not exists budget_items (
 
 create table if not exists open_items (
   id uuid primary key default gen_random_uuid(),
-  label text not null,
+  label text not null unique,
   done boolean not null default false,
   sort_order int not null default 0
 );
@@ -29,6 +32,19 @@ create table if not exists admin_content (
   payload jsonb not null,
   updated_at timestamptz not null default now()
 );
+
+-- Adds the unique constraints above onto a table that already existed from
+-- an earlier run of this script (before this line was added). No-ops if
+-- the constraint is already there, either way.
+do $$ begin
+  alter table budget_items add constraint budget_items_category_key unique (category);
+exception when duplicate_object then null;
+end $$;
+
+do $$ begin
+  alter table open_items add constraint open_items_label_key unique (label);
+exception when duplicate_object then null;
+end $$;
 
 -- Server-side authorization check. SECURITY DEFINER so it can read `admins`
 -- (which has no client-facing policies) on the caller's behalf.
@@ -42,9 +58,16 @@ alter table open_items enable row level security;
 alter table admin_content enable row level security;
 alter table admins enable row level security; -- no policies below = deny all direct client access
 
+drop policy if exists "admins can read budget" on budget_items;
 create policy "admins can read budget" on budget_items for select using (is_admin());
+
+drop policy if exists "admins can read open items" on open_items;
 create policy "admins can read open items" on open_items for select using (is_admin());
+
+drop policy if exists "admins can update open items" on open_items;
 create policy "admins can update open items" on open_items for update using (is_admin());
+
+drop policy if exists "admins can read admin content" on admin_content;
 create policy "admins can read admin content" on admin_content for select using (is_admin());
 
 -- ---------------------------------------------------------------------
@@ -60,7 +83,8 @@ insert into budget_items (category, working_amount, alt_amount, quoted_amount, s
   ('Printing and posters', null, null, null, 5),
   ('Tarp and signage', null, null, null, 6),
   ('Seating', null, null, null, 7),
-  ('Miscellaneous', null, null, null, 8);
+  ('Miscellaneous', null, null, null, 8)
+on conflict (category) do nothing;
 
 insert into open_items (label, sort_order) values
   ('Model selection and fees', 0),
@@ -74,7 +98,8 @@ insert into open_items (label, sort_order) values
   ('LATAG and challenge format', 8),
   ('Owner for marketing and social', 9),
   ('Owner for materials and chairs', 10),
-  ('Final venue layout', 11);
+  ('Final venue layout', 11)
+on conflict (label) do nothing;
 
 insert into admin_content (section_key, payload) values
 ('models', '{
@@ -121,7 +146,8 @@ insert into admin_content (section_key, payload) values
 
 ('budget_note', '{
   "text": "A handwritten ₱11,500 and a later ₱43,000 both appear in the notes. Neither has clear components behind it. Do not quote either as the event budget until the categories above are filled in."
-}'::jsonb);
+}'::jsonb)
+on conflict (section_key) do nothing;
 
 -- ---------------------------------------------------------------------
 -- Admin accounts
