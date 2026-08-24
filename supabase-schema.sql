@@ -7,7 +7,7 @@
 -- in the Supabase table editor (every seed insert is ON CONFLICT DO NOTHING).
 
 create table if not exists admins (
-  user_id uuid primary key references auth.users(id),
+  user_id uuid primary key,
   email text not null
 );
 
@@ -45,6 +45,13 @@ do $$ begin
   alter table open_items add constraint open_items_label_key unique (label);
 exception when duplicate_object then null;
 end $$;
+
+-- Cascade: deleting an auth user should also drop their admins row, not
+-- block the delete. Drop-then-add is idempotent on its own (no need for
+-- the duplicate_object guard used above).
+alter table admins drop constraint if exists admins_user_id_fkey;
+alter table admins add constraint admins_user_id_fkey
+  foreign key (user_id) references auth.users(id) on delete cascade;
 
 -- Server-side authorization check. SECURITY DEFINER so it can read `admins`
 -- (which has no client-facing policies) on the caller's behalf.
