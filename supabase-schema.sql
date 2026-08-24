@@ -77,6 +77,15 @@ create policy "admins can update open items" on open_items for update using (is_
 drop policy if exists "admins can read admin content" on admin_content;
 create policy "admins can read admin content" on admin_content for select using (is_admin());
 
+-- RLS policies only take effect once the `authenticated` role has the
+-- underlying table privilege in the first place — without this grant,
+-- PostgREST returns a flat 403 before RLS is even consulted, regardless
+-- of how correct the policies above are. Idempotent: GRANT is safe to
+-- repeat.
+grant usage on schema public to authenticated;
+grant select on budget_items, open_items, admin_content to authenticated;
+grant update on open_items to authenticated;
+
 -- ---------------------------------------------------------------------
 -- Seed data — reproduces the page's current real content exactly.
 -- ---------------------------------------------------------------------
