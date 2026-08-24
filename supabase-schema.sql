@@ -179,7 +179,7 @@ on conflict (section_key) do nothing;
 -- this insert silently skips it. Fix the address (single "@") and re-run
 -- this block once you know the correct one.
 --
--- NOTE: this list is five accounts, not the two the admin area's own
+-- NOTE: this list is now six accounts, not the two the admin area's own
 -- copy still says ("restricted to the two organisers who manage them" —
 -- see index.html's Admin sign-in lede). Worth deciding whether that
 -- wording should be updated, or the account list trimmed back to two.
@@ -191,7 +191,8 @@ where email in (
   'vaughnpinpin@gmail.com',
   'manzano.rrt@gmail.com',
   'kyusisunday@gmail.com',
-  'cluelessrex@gmail.com'  -- corrected from the double-@ typo; confirm this is right
+  'cluelessrex@gmail.com',  -- corrected from the double-@ typo; confirm this is right
+  'peter.yruma@gmail.com'
 )
 on conflict (user_id) do nothing;
 
