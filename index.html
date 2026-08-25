@@ -316,7 +316,7 @@ ul.list li:last-child{border-bottom:none}
 .btable td.num{text-align:right;font-family:"Space Mono",monospace;font-size:13px;white-space:nowrap}
 .btable tr.total td{border-top:2px solid var(--ink);border-bottom:none;font-family:"Archivo",sans-serif;font-weight:800;font-size:1.05em;padding-top:16px}
 .note-strip{border-left:4px solid var(--red);padding:14px 16px;background:var(--paper-2);margin-top:22px}
-.sheet-link{font-family:"Space Mono",monospace;font-size:11px;letter-spacing:.08em;text-transform:uppercase;border-bottom:1px solid var(--rule);text-decoration:none}
+.mono-link{font-family:"Space Mono",monospace;font-size:11px;letter-spacing:.08em;text-transform:uppercase;border-bottom:1px solid var(--rule);text-decoration:none}
 .table-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
 
 /* ---------- checklists ---------- */
@@ -431,7 +431,7 @@ footer{border-top:1px solid var(--ink);padding:44px 0 60px;font-family:"Space Mo
   .station .no{font-size:12px}
   .station .note{font-size:12px;letter-spacing:.02em;line-height:1.5}
   .prog-when{font-size:13px;letter-spacing:.02em}
-  .tag{font-size:11px;padding:5px 9px}
+  .tag{font-size:12px;padding:5px 9px}
   a.cta,button.cta{font-size:14px;padding:14px 20px}
 
   header.hero{padding-bottom:26px}
@@ -471,9 +471,14 @@ footer{border-top:1px solid var(--ink);padding:44px 0 60px;font-family:"Space Mo
   .live-head select{font-size:16px;padding:12px}
   .next-action,.phase-name,.math-row{font-size:13px}
   #clockState{font-size:12px!important}
-  .sheet-link{font-size:12px}
+  .mono-link{font-size:12px;display:inline-block;padding:4px 0}
   button.btn{font-size:13px;padding:13px 17px;min-height:44px}
   .switch button{font-size:12px;padding:12px 14px}
+  .strip-labels{font-size:12px}
+  .gtag .who{font-size:11px}
+  .admin-group-label{font-size:12px}
+  .slot-time{font-size:13px}
+  footer{font-size:12px}
 
   /* ---- admin: touch targets & spacing ---- */
   .check{padding:15px 0;gap:14px}
@@ -564,7 +569,7 @@ footer{border-top:1px solid var(--ink);padding:44px 0 60px;font-family:"Space Mo
         <h4>Where</h4>
         <p><strong>Racket Room Cubao</strong></p>
         <p style="color:var(--ink-soft);margin:0 0 12px">94 10th Ave, Cubao, Quezon City, Metro Manila</p>
-        <p style="margin-bottom:0"><a href="https://www.google.com/maps/search/?api=1&amp;query=Racket+Room+Cubao%2C+94+10th+Ave%2C+Cubao%2C+Quezon+City" target="_blank" rel="noopener" style="font-family:'Space Mono',monospace;font-size:11px;letter-spacing:.08em;text-transform:uppercase;border-bottom:1px solid var(--rule);text-decoration:none">Open in Maps</a></p>
+        <p style="margin-bottom:0"><a class="mono-link" href="https://www.google.com/maps/search/?api=1&amp;query=Racket+Room+Cubao%2C+94+10th+Ave%2C+Cubao%2C+Quezon+City" target="_blank" rel="noopener">Open in Maps</a></p>
       </div>
       <div class="card">
         <h4>Who it's for</h4>
@@ -1788,7 +1793,7 @@ footer{border-top:1px solid var(--ink);padding:44px 0 60px;font-family:"Space Mo
       '<div class="table-scroll"><table class="btable"><thead><tr><th>Category</th><th style="text-align:right">Working</th><th style="text-align:right">Quoted</th></tr></thead>' +
       '<tbody id="budgetTbody"></tbody></table></div>' +
       (note ? '<div class="note-strip">'+esc(note)+"</div>" : "") +
-      (sheetUrl ? '<p style="margin-top:16px"><a class="sheet-link" href="'+esc(sheetUrl)+'" target="_blank" rel="noopener">Open budget control sheet ↗</a></p>' : "");
+      (sheetUrl ? '<p style="margin-top:16px"><a class="mono-link" href="'+esc(sheetUrl)+'" target="_blank" rel="noopener">Open budget control sheet ↗</a></p>' : "");
 
     var tbody = document.getElementById("budgetTbody");
     function paint(useAlt){
