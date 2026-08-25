@@ -68,6 +68,7 @@ section{padding:clamp(56px,7vw,104px) 0;border-top:1px solid var(--rule)}
 
 /* ---------- nav ---------- */
 nav{position:sticky;top:0;z-index:60;background:rgba(230,229,223,.93);backdrop-filter:blur(8px);border-bottom:1px solid var(--rule)}
+#event,#fiesta,#programme,#how,#register,#faq,#contact{scroll-margin-top:60px}
 .nav-in{max-width:var(--max);margin:0 auto;padding:0 var(--gut);display:flex;align-items:center;gap:14px;height:52px}
 .nav-mark{
   font-family:"Archivo",sans-serif;font-weight:900;font-size:13px;letter-spacing:-.01em;
@@ -165,6 +166,7 @@ a.cta.secondary{background:transparent;color:var(--ink)}
 a.cta.secondary:hover{background:var(--ink);color:var(--paper);border-color:var(--ink)}
 button.cta[disabled]{background:var(--paper-2);color:var(--ink-soft);border-color:var(--rule);cursor:default}
 button.cta[disabled]:hover{background:var(--paper-2);color:var(--ink-soft);border-color:var(--rule)}
+.sticky-cta{display:none}
 
 /* ---------- chips / tags ---------- */
 .tag{
@@ -184,7 +186,11 @@ button.cta[disabled]:hover{background:var(--paper-2);color:var(--ink-soft);borde
 .g2{grid-template-columns:repeat(2,1fr)}
 
 /* ---------- public programme ---------- */
-.prog-list{border-top:1px solid var(--ink);margin-top:8px}
+.glance-label{margin:26px 0 12px}
+.glance{display:flex;flex-wrap:wrap;gap:8px 6px;align-items:center;font-family:"Space Mono",monospace;font-size:12px;letter-spacing:.03em}
+.glance-step{padding:6px 10px;border:1px solid var(--rule);border-radius:2px;background:var(--paper-2);white-space:nowrap;color:var(--ink)}
+.glance-arrow{color:var(--ink-soft)}
+.prog-list{border-top:1px solid var(--ink);margin-top:34px}
 .prog-item{display:grid;grid-template-columns:150px 1fr;gap:18px;padding:18px 4px;border-bottom:1px solid var(--rule);align-items:start}
 .prog-when{font-family:"Space Mono",monospace;font-size:12px;letter-spacing:.04em;color:var(--ink-soft);padding-top:3px}
 .prog-what h3{margin-bottom:8px}
@@ -425,6 +431,19 @@ footer{border-top:1px solid var(--ink);padding:44px 0 60px;font-family:"Space Mo
   .cta-row{margin-top:22px}
   .stations{gap:14px}
   .station{padding:18px}
+
+  /* ---- sticky mobile registration CTA ---- */
+  body{padding-bottom:78px}
+  .sticky-cta{
+    display:block;position:fixed;left:0;right:0;bottom:0;z-index:55;
+    background:var(--paper);border-top:1px solid var(--ink);
+    padding:10px var(--gut) calc(10px + env(safe-area-inset-bottom))
+  }
+  .sticky-cta a.cta{width:100%;justify-content:center;min-height:44px}
+  body.nav-locked .sticky-cta,.sticky-cta.is-hidden{display:none}
+
+  /* ---- morning at a glance / programme kicker ---- */
+  .prog-when{text-transform:uppercase;letter-spacing:.07em;display:block;margin-bottom:4px}
 }
 @media (prefers-reduced-motion:reduce){
   *{transition:none!important;animation:none!important}
@@ -456,6 +475,10 @@ footer{border-top:1px solid var(--ink);padding:44px 0 60px;font-family:"Space Mo
     </div>
   </div>
 </nav>
+
+<div class="sticky-cta" id="stickyCta">
+  <a class="cta" href="#register" id="stickyCtaLink">Registration opening soon</a>
+</div>
 
 <header class="hero" id="top">
   <div class="wrap">
@@ -562,6 +585,20 @@ footer{border-top:1px solid var(--ink);padding:44px 0 60px;font-family:"Space Mo
       <h2>Programme</h2>
     </div>
     <p class="lede">How the morning runs, in order. Start and finish times are being finalised — they'll be announced with the registration form, and the detailed session timing is explained at the welcome briefing.</p>
+
+    <p class="eyebrow glance-label">Morning at a glance</p>
+    <div class="glance">
+      <span class="glance-step">Check-in</span><span class="glance-arrow">→</span>
+      <span class="glance-step">Welcome</span><span class="glance-arrow">→</span>
+      <span class="glance-step">Station 1</span><span class="glance-arrow">→</span>
+      <span class="glance-step">Rotate</span><span class="glance-arrow">→</span>
+      <span class="glance-step">Station 2</span><span class="glance-arrow">→</span>
+      <span class="glance-step">Break</span><span class="glance-arrow">→</span>
+      <span class="glance-step">Rotate</span><span class="glance-arrow">→</span>
+      <span class="glance-step">Station 3</span><span class="glance-arrow">→</span>
+      <span class="glance-step">Celebration</span><span class="glance-arrow">→</span>
+      <span class="glance-step">Closing</span>
+    </div>
 
     <div class="prog-list">
       <div class="prog-item anchor">
@@ -1035,6 +1072,19 @@ footer{border-top:1px solid var(--ink);padding:44px 0 60px;font-family:"Space Mo
     window.addEventListener("resize", function(){
       if (window.innerWidth > 860 && isOpen()) closeMenu(false);
     });
+  }
+
+  /* hide the sticky mobile registration CTA while the admin section
+     (login gate or authenticated dashboard) is in view */
+  var stickyCta = document.getElementById("stickyCta");
+  var adminSection = document.getElementById("admin");
+  if (stickyCta && adminSection && "IntersectionObserver" in window){
+    var ctaObserver = new IntersectionObserver(function(entries){
+      entries.forEach(function(entry){
+        stickyCta.classList.toggle("is-hidden", entry.isIntersecting);
+      });
+    }, { threshold: 0.15 });
+    ctaObserver.observe(adminSection);
   }
 })();
 </script>
