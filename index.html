@@ -83,6 +83,20 @@ nav{position:sticky;top:0;z-index:60;background:rgba(230,229,223,.93);backdrop-f
 .nav-links a:hover,.nav-links a.on{color:var(--ink);background:var(--paper-2)}
 .nav-links a.organiser-link{color:var(--ink-soft);opacity:.7;border-left:1px solid var(--rule);margin-left:6px}
 .nav-links a.organiser-link:hover{opacity:1}
+.nav-toggle{
+  display:none;align-items:center;justify-content:center;
+  width:44px;height:44px;margin-left:auto;flex:none;padding:0;
+  background:transparent;border:1px solid var(--ink);border-radius:2px;cursor:pointer
+}
+.nav-toggle-box{position:relative;width:19px;height:13px;display:block}
+.nav-toggle-bar{position:absolute;left:0;width:100%;height:2px;background:var(--ink);border-radius:1px;transition:transform .18s ease,opacity .18s ease}
+.nav-toggle-bar:nth-child(1){top:0}
+.nav-toggle-bar:nth-child(2){top:5.5px}
+.nav-toggle-bar:nth-child(3){top:11px}
+.nav-toggle[aria-expanded="true"] .nav-toggle-bar:nth-child(1){transform:translateY(5.5px) rotate(45deg)}
+.nav-toggle[aria-expanded="true"] .nav-toggle-bar:nth-child(2){opacity:0}
+.nav-toggle[aria-expanded="true"] .nav-toggle-bar:nth-child(3){transform:translateY(-5.5px) rotate(-45deg)}
+body.nav-locked{overflow:hidden}
 
 /* ---------- hero ---------- */
 header.hero{padding:clamp(44px,7vw,86px) 0 clamp(38px,5vw,60px);border-top:none}
@@ -361,6 +375,27 @@ footer{border-top:1px solid var(--ink);padding:44px 0 60px;font-family:"Space Mo
 :focus-visible{outline:2px solid var(--red);outline-offset:3px}
 
 @media (max-width:860px){
+  .nav-toggle{display:inline-flex}
+  .nav-links{
+    position:fixed;top:52px;left:0;right:0;
+    flex-direction:column;align-items:stretch;gap:0;
+    overflow-x:hidden;overflow-y:auto;max-height:calc(100vh - 52px);
+    background:var(--paper);border-bottom:1px solid var(--ink);
+    opacity:0;visibility:hidden;transform:translateY(-8px);pointer-events:none;
+    transition:opacity .18s ease,transform .18s ease,visibility 0s linear .18s
+  }
+  .nav-links.nav-open{
+    opacity:1;visibility:visible;transform:translateY(0);pointer-events:auto;
+    transition:opacity .18s ease,transform .18s ease
+  }
+  .nav-links a{
+    display:flex;align-items:center;min-height:44px;
+    padding:14px var(--gut);font-size:14px;
+    border-bottom:1px solid var(--rule);white-space:normal
+  }
+  .nav-links a.organiser-link{
+    border-left:none;margin-left:0;margin-top:10px;border-top:1px solid var(--rule);opacity:.7
+  }
   .g3,.g2,.timer-shell,.meet,.checks,.tagboard{grid-template-columns:1fr}
   .slot-row{grid-template-columns:96px 1fr auto;gap:10px}
   .slot-body{padding-left:4px}
@@ -384,7 +419,14 @@ footer{border-top:1px solid var(--ink);padding:44px 0 60px;font-family:"Space Mo
 <nav>
   <div class="nav-in">
     <a class="nav-mark" href="#top"><img class="nav-logo" id="brandLogo" alt="Kyusi Sunday Sketchers">Kyusi Sunday Sketchers</a>
-    <div class="nav-links">
+    <button type="button" class="nav-toggle" id="navToggle" aria-expanded="false" aria-controls="navLinks" aria-label="Open menu">
+      <span class="nav-toggle-box" aria-hidden="true">
+        <span class="nav-toggle-bar"></span>
+        <span class="nav-toggle-bar"></span>
+        <span class="nav-toggle-bar"></span>
+      </span>
+    </button>
+    <div class="nav-links" id="navLinks">
       <a href="#event">Event</a>
       <a href="#fiesta">Fiestang Pinoy</a>
       <a href="#programme">Programme</a>
@@ -933,6 +975,49 @@ footer{border-top:1px solid var(--ink);padding:44px 0 60px;font-family:"Space Mo
   }
   window.addEventListener("scroll", spy, { passive: true });
   spy();
+
+  /* mobile hamburger menu */
+  var navToggle = document.getElementById("navToggle");
+  var navLinksEl = document.getElementById("navLinks");
+  if (navToggle && navLinksEl){
+    function isOpen(){ return navToggle.getAttribute("aria-expanded") === "true"; }
+    function openMenu(){
+      navLinksEl.classList.add("nav-open");
+      navToggle.setAttribute("aria-expanded", "true");
+      navToggle.setAttribute("aria-label", "Close menu");
+      document.body.classList.add("nav-locked");
+    }
+    function closeMenu(returnFocus){
+      navLinksEl.classList.remove("nav-open");
+      navToggle.setAttribute("aria-expanded", "false");
+      navToggle.setAttribute("aria-label", "Open menu");
+      document.body.classList.remove("nav-locked");
+      if (returnFocus) navToggle.focus();
+    }
+    navToggle.addEventListener("click", function(){
+      if (isOpen()) closeMenu(false); else openMenu();
+    });
+    navLinksEl.addEventListener("click", function(e){
+      if (e.target.tagName === "A" && isOpen()) closeMenu(false);
+    });
+    document.addEventListener("keydown", function(e){
+      if (e.key === "Escape" && isOpen()) closeMenu(true);
+    });
+    navLinksEl.addEventListener("keydown", function(e){
+      if (e.key !== "Tab" || !isOpen()) return;
+      var items = navLinksEl.querySelectorAll("a");
+      if (!items.length) return;
+      var first = items[0], last = items[items.length - 1];
+      if (e.shiftKey && document.activeElement === first){
+        e.preventDefault(); last.focus();
+      } else if (!e.shiftKey && document.activeElement === last){
+        e.preventDefault(); first.focus();
+      }
+    });
+    window.addEventListener("resize", function(){
+      if (window.innerWidth > 860 && isOpen()) closeMenu(false);
+    });
+  }
 })();
 </script>
 
