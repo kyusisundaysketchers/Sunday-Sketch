@@ -294,7 +294,7 @@ ul.list li:last-child{border-bottom:none}
 .faq details{border-bottom:1px solid var(--rule)}
 .faq summary{
   list-style:none;cursor:pointer;padding:18px 4px;display:flex;justify-content:space-between;gap:16px;align-items:center;
-  font-family:"Archivo",sans-serif;font-weight:600;font-size:clamp(16px,1.6vw,19px)
+  font-family:"Archivo",sans-serif;font-weight:600;font-size:clamp(17px,1.6vw,19px)
 }
 .faq summary::-webkit-details-marker{display:none}
 .faq summary:after{content:"+";font-family:"Space Mono",monospace;color:var(--ink-soft);font-size:15px}
@@ -390,7 +390,7 @@ footer{border-top:1px solid var(--ink);padding:44px 0 60px;font-family:"Space Mo
   }
   .nav-links a{
     display:flex;align-items:center;min-height:44px;
-    padding:14px var(--gut);font-size:14px;
+    padding:14px var(--gut);font-size:16px;
     border-bottom:1px solid var(--rule);white-space:normal
   }
   .nav-links a.organiser-link{
@@ -407,6 +407,24 @@ footer{border-top:1px solid var(--ink);padding:44px 0 60px;font-family:"Space Mo
   .matrix th,.matrix td{padding:10px 8px;font-size:.88em}
   .rtable th,.rtable td{padding:10px 6px;font-size:.9em}
   a.cta,button.cta{width:100%;justify-content:center}
+
+  /* ---- mobile typography & spacing ---- */
+  body{font-size:17px}
+  .eyebrow{font-size:12px;letter-spacing:.12em}
+  .format-line{font-size:13px;letter-spacing:.1em}
+  .fact small{font-size:12px;letter-spacing:.08em}
+  .station .no{font-size:12px}
+  .station .note{font-size:12px;letter-spacing:.02em;line-height:1.5}
+  .prog-when{font-size:13px;letter-spacing:.02em}
+  .tag{font-size:11px;padding:5px 9px}
+  a.cta,button.cta{font-size:14px;padding:14px 20px}
+
+  header.hero{padding-bottom:26px}
+  .hero-sub{margin-top:18px}
+  .facts{margin-top:24px}
+  .cta-row{margin-top:22px}
+  .stations{gap:14px}
+  .station{padding:18px}
 }
 @media (prefers-reduced-motion:reduce){
   *{transition:none!important;animation:none!important}
