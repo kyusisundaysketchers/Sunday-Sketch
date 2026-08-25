@@ -316,6 +316,8 @@ ul.list li:last-child{border-bottom:none}
 .btable td.num{text-align:right;font-family:"Space Mono",monospace;font-size:13px;white-space:nowrap}
 .btable tr.total td{border-top:2px solid var(--ink);border-bottom:none;font-family:"Archivo",sans-serif;font-weight:800;font-size:1.05em;padding-top:16px}
 .note-strip{border-left:4px solid var(--red);padding:14px 16px;background:var(--paper-2);margin-top:22px}
+.sheet-link{font-family:"Space Mono",monospace;font-size:11px;letter-spacing:.08em;text-transform:uppercase;border-bottom:1px solid var(--rule);text-decoration:none}
+.table-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
 
 /* ---------- checklists ---------- */
 .prog-meter{display:flex;align-items:center;gap:16px;margin-bottom:26px;flex-wrap:wrap}
@@ -343,8 +345,15 @@ ul.list li:last-child{border-bottom:none}
 .admin-banner{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;padding:16px 20px;border:1px solid var(--ink);border-radius:3px;background:var(--paper-2);margin-bottom:28px}
 .admin-banner span{font-family:"Space Mono",monospace;font-size:12px;color:var(--ink-soft)}
 .admin-tabs{display:flex;flex-wrap:wrap;gap:6px;margin:18px 0 0}
-.admin-tabs a{font-family:"Space Mono",monospace;font-size:11px;text-transform:uppercase;letter-spacing:.08em;text-decoration:none;padding:8px 11px;color:var(--ink-soft);border:1px solid var(--rule);border-radius:2px}
+.admin-tabs a{font-family:"Space Mono",monospace;font-size:11px;text-transform:uppercase;letter-spacing:.08em;text-decoration:none;padding:8px 11px;color:var(--ink-soft);border:1px solid var(--rule);border-radius:2px;display:inline-flex;align-items:center}
 .admin-tabs a:hover{color:var(--ink);background:var(--paper-2);border-color:var(--ink)}
+.admin-tabs-mobile{display:none}
+.admin-group-label{font-family:"Space Mono",monospace;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-soft);margin:16px 0 8px}
+.admin-group-label:first-child{margin-top:0}
+.session-settings summary{list-style:none;cursor:pointer;font-family:"Archivo",sans-serif;font-weight:600;font-size:14px;text-transform:uppercase;letter-spacing:.04em;padding:4px 0}
+.session-settings summary::-webkit-details-marker{display:none}
+.session-settings summary:before{content:"▸ ";display:inline-block;transition:transform .15s ease}
+.session-settings[open] summary:before{transform:rotate(90deg)}
 .admin-panel{padding-top:clamp(44px,6vw,72px)}
 .admin-alert{border:1px solid var(--red);border-left-width:4px;border-radius:3px;background:var(--paper-2);padding:16px 18px;margin-bottom:24px}
 .admin-alert h4{color:var(--red);margin-bottom:8px}
@@ -444,6 +453,34 @@ footer{border-top:1px solid var(--ink);padding:44px 0 60px;font-family:"Space Mo
 
   /* ---- morning at a glance / programme kicker ---- */
   .prog-when{text-transform:uppercase;letter-spacing:.07em;display:block;margin-bottom:4px}
+
+  /* ---- admin: navigation grouping ---- */
+  .admin-tabs-desktop{display:none}
+  .admin-tabs-mobile{display:block}
+
+  /* ---- admin: typography ---- */
+  .admin-banner span{font-size:14px}
+  .admin-tabs a{font-size:13px;padding:11px 13px;min-height:44px}
+  .stat small{font-size:12px}
+  .stat b{font-size:20px}
+  .rtable th,.btable th,.matrix th{font-size:12px}
+  .rtable td,.btable td{font-size:15px}
+  .assign{font-size:12px}
+  .local-note,.save-state,.prog-num{font-size:13px}
+  .live-head label,.field label{font-size:12px}
+  .live-head select{font-size:16px;padding:12px}
+  .next-action,.phase-name,.math-row{font-size:13px}
+  #clockState{font-size:12px!important}
+  .sheet-link{font-size:12px}
+  button.btn{font-size:13px;padding:13px 17px;min-height:44px}
+  .switch button{font-size:12px;padding:12px 14px}
+
+  /* ---- admin: touch targets & spacing ---- */
+  .check{padding:15px 0;gap:14px}
+  .check input{width:23px;height:23px}
+  .check span{font-size:15px}
+  .gtag{padding:16px}
+  .table-scroll{margin:0 calc(var(--gut) * -1);padding:0 var(--gut)}
 }
 @media (prefers-reduced-motion:reduce){
   *{transition:none!important;animation:none!important}
@@ -838,7 +875,7 @@ footer{border-top:1px solid var(--ink);padding:44px 0 60px;font-family:"Space Mo
 
       <div id="adminAlert" hidden></div>
 
-      <div class="admin-tabs">
+      <div class="admin-tabs admin-tabs-desktop">
         <a href="#admin-dashboard">Dashboard</a>
         <a href="#admin-runofshow">Run of show</a>
         <a href="#admin-ingress">Ingress</a>
@@ -854,6 +891,30 @@ footer{border-top:1px solid var(--ink);padding:44px 0 60px;font-family:"Space Mo
         <a href="#admin-contingencies">Contingencies</a>
         <a href="#admin-egress">Egress</a>
         <a href="#admin-next">Next meeting</a>
+      </div>
+
+      <div class="admin-tabs-mobile">
+        <p class="admin-group-label">Today</p>
+        <div class="admin-tabs">
+          <a href="#admin-dashboard">Dashboard</a>
+          <a href="#admin-runofshow">Run of show</a>
+          <a href="#admin-ingress">Ingress</a>
+          <a href="#admin-early">Early arrivals</a>
+          <a href="#admin-groups">Groups</a>
+          <a href="#admin-live">Live control</a>
+          <a href="#admin-open">Open decisions</a>
+          <a href="#admin-egress">Egress</a>
+        </div>
+        <p class="admin-group-label">Planning</p>
+        <div class="admin-tabs">
+          <a href="#admin-roles">Roles</a>
+          <a href="#admin-models">Models</a>
+          <a href="#admin-venue">Venue</a>
+          <a href="#admin-registration-details">Registration</a>
+          <a href="#admin-budget">Budget</a>
+          <a href="#admin-contingencies">Contingencies</a>
+          <a href="#admin-next">Next meeting</a>
+        </div>
       </div>
 
       <section id="admin-dashboard" class="admin-panel">
@@ -924,9 +985,9 @@ footer{border-top:1px solid var(--ink);padding:44px 0 60px;font-family:"Space Mo
             <div class="next-action" id="nextAction"></div>
           </div>
 
-          <div>
-            <h4 style="margin-bottom:14px">Session lengths</h4>
-            <div class="field">
+          <details class="session-settings" open>
+            <summary>Session settings</summary>
+            <div class="field" style="margin-top:16px">
               <label for="warmupMins">Warm-up, minutes</label>
               <input type="number" id="warmupMins" min="1" max="60" inputmode="numeric" value="3">
             </div>
@@ -940,7 +1001,7 @@ footer{border-top:1px solid var(--ink);padding:44px 0 60px;font-family:"Space Mo
             </div>
             <div class="math" id="mathBox"></div>
             <div class="verdict" id="verdict"></div>
-          </div>
+          </details>
         </div>
       </section>
 
@@ -1244,21 +1305,21 @@ footer{border-top:1px solid var(--ink);padding:44px 0 60px;font-family:"Space Mo
   function renderRoles(el, p){
     el.innerHTML =
       (p.intro ? '<p class="lede">'+esc(p.intro)+"</p>" : "") +
-      '<table class="rtable"><thead><tr><th>Role</th><th>Owner</th><th>Responsibility</th></tr></thead><tbody>' +
+      '<div class="table-scroll"><table class="rtable"><thead><tr><th>Role</th><th>Owner</th><th>Responsibility</th></tr></thead><tbody>' +
       arr(p.rows).map(function(r){
         return "<tr><td>"+esc(r.role)+"</td><td>"+(r.owner ? esc(r.owner) : assign("Assign Name"))+"</td><td>"+esc(r.responsibility)+"</td></tr>";
       }).join("") +
-      "</tbody></table>";
+      "</tbody></table></div>";
   }
 
   function renderContingencies(el, p){
     el.innerHTML =
       (p.intro ? '<p class="lede">'+esc(p.intro)+"</p>" : "") +
-      '<table class="rtable"><thead><tr><th>If this happens</th><th>Current status</th><th>Owner</th></tr></thead><tbody>' +
+      '<div class="table-scroll"><table class="rtable"><thead><tr><th>If this happens</th><th>Current status</th><th>Owner</th></tr></thead><tbody>' +
       arr(p.rows).map(function(r){
         return "<tr><td>"+esc(r.when)+"</td><td>"+esc(r.status)+"</td><td>"+(r.owner ? esc(r.owner) : assign("Assign Name"))+"</td></tr>";
       }).join("") +
-      "</tbody></table>";
+      "</tbody></table></div>";
   }
 
   function renderGroups(el, p){
@@ -1275,10 +1336,10 @@ footer{border-top:1px solid var(--ink);padding:44px 0 60px;font-family:"Space Mo
                  '<span class="who">'+esc(g.seats_label || "")+"</span></button>";
         }).join("") +
       "</div>" +
-      '<table class="matrix">' +
+      '<div class="table-scroll"><table class="matrix">' +
         (p.caption ? '<caption class="eyebrow" style="text-align:left;margin:26px 0 10px">'+esc(p.caption)+"</caption>" : "") +
         '<thead><tr><th>Group</th><th>First</th><th>Second</th><th>Third</th></tr></thead>' +
-        '<tbody id="matrixBody"></tbody></table>' +
+        '<tbody id="matrixBody"></tbody></table></div>' +
       '<div class="grid g2" style="margin-top:34px">' +
         '<div class="card"><h4>Seats in the room</h4>' +
           (p.seats_note ? '<p style="color:var(--ink-soft);margin:10px 0 14px">'+esc(p.seats_note)+"</p>" : "") +
@@ -1586,6 +1647,11 @@ footer{border-top:1px solid var(--ink);padding:44px 0 60px;font-family:"Space Mo
     });
     window.addEventListener("pagehide", function(){ wakeRelease(); });
 
+    /* on a phone, start with the timer visible and the settings tucked
+       away; this is purely which panel opens first, not timer behaviour */
+    var settingsPanel = document.querySelector(".session-settings");
+    if (settingsPanel && window.innerWidth <= 860) settingsPanel.removeAttribute("open");
+
     build(); drawStrip(); reset(); mathView();
 
     return {
@@ -1719,10 +1785,10 @@ footer{border-top:1px solid var(--ink);padding:44px 0 60px;font-family:"Space Mo
       '<p class="lede">'+costed+" of "+items.length+" categories have a working figure. "+
         quoted+" ha"+(quoted===1?"s":"ve")+" a quotation against "+(quoted===1?"it":"them")+".</p>" +
       switchHtml +
-      '<table class="btable"><thead><tr><th>Category</th><th style="text-align:right">Working</th><th style="text-align:right">Quoted</th></tr></thead>' +
-      '<tbody id="budgetTbody"></tbody></table>' +
+      '<div class="table-scroll"><table class="btable"><thead><tr><th>Category</th><th style="text-align:right">Working</th><th style="text-align:right">Quoted</th></tr></thead>' +
+      '<tbody id="budgetTbody"></tbody></table></div>' +
       (note ? '<div class="note-strip">'+esc(note)+"</div>" : "") +
-      (sheetUrl ? '<p style="margin-top:16px"><a href="'+esc(sheetUrl)+'" target="_blank" rel="noopener" style="font-family:\'Space Mono\',monospace;font-size:11px;letter-spacing:.08em;text-transform:uppercase;border-bottom:1px solid var(--rule);text-decoration:none">Open budget control sheet ↗</a></p>' : "");
+      (sheetUrl ? '<p style="margin-top:16px"><a class="sheet-link" href="'+esc(sheetUrl)+'" target="_blank" rel="noopener">Open budget control sheet ↗</a></p>' : "");
 
     var tbody = document.getElementById("budgetTbody");
     function paint(useAlt){
