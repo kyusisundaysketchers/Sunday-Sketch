@@ -524,13 +524,17 @@ footer{border-top:1px solid var(--ink);padding:44px 0 60px;font-family:"Space Mo
         <div class="prog-when">Station two</div>
         <div class="prog-what"><h3>Second theme, second model</h3><p>Same shape to the session: warm up, then settle into the longer pose.</p></div>
       </div>
+      <div class="prog-item anchor">
+        <div class="prog-when">Break</div>
+        <div class="prog-what"><h3>Food and a proper rest</h3><p>A real break for artists and models both, in the middle of the morning — snacks, and time to sit around and talk to each other. It's an anniversary, not a workshop.</p></div>
+      </div>
+      <div class="prog-item">
+        <div class="prog-when">Move</div>
+        <div class="prog-what"><h3>Rotate</h3><p>Pack up from the break and move to your last station as a group.</p></div>
+      </div>
       <div class="prog-item">
         <div class="prog-when">Station three</div>
         <div class="prog-what"><h3>Third theme, third model</h3><p>Your last model of the morning, and your last long pose.</p></div>
-      </div>
-      <div class="prog-item anchor">
-        <div class="prog-when">Break</div>
-        <div class="prog-what"><h3>Food and a proper rest</h3><p>A real break for artists and models both — snacks, and time to sit around and talk to each other. It's an anniversary, not a workshop.</p></div>
       </div>
       <div class="prog-item anchor">
         <div class="prog-when">Celebration</div>
@@ -677,10 +681,11 @@ footer{border-top:1px solid var(--ink);padding:44px 0 60px;font-family:"Space Mo
       <span class="sec-num">07</span>
       <h2>Contact</h2>
     </div>
-    <p class="lede">Kyusi Sunday Sketchers is a community drawing group in Quezon City, one year old this October. Announcements, the registration link and model reveals all go out on our channels first.</p>
+    <p class="lede">Kyusi Sunday Sketchers is a non-profit built by artists for artists, creating space, support and opportunities for the creative community. We're a drawing group in Quezon City, one year old this October. Announcements, the registration link and model reveals all go out on our channels first.</p>
     <div class="card" style="max-width:560px;margin-top:26px">
       <h4>Get in touch</h4>
-      <p style="color:var(--ink-soft);margin:10px 0 0">Follow or message Kyusi Sunday Sketchers on social media for event announcements and questions about the day. Registration details will be posted here as soon as the form is live.</p>
+      <p style="color:var(--ink-soft);margin:10px 0 18px">Follow or message Kyusi Sunday Sketchers on social media for event announcements and questions about the day. Registration details will be posted here as soon as the form is live.</p>
+      <a class="cta secondary" href="https://www.instagram.com/kyusisundaysketchers" target="_blank" rel="noopener">Follow on Instagram</a>
     </div>
   </div>
 </section>
@@ -1533,7 +1538,7 @@ footer{border-top:1px solid var(--ink);padding:44px 0 60px;font-family:"Space Mo
     window.__adminMeetingInterval = setInterval(tick, 30000);
   }
 
-  function renderBudget(el, items, note){
+  function renderBudget(el, items, note, sheetUrl){
     var altRow = null;
     items.forEach(function(it){ if (it.alt_amount != null) altRow = it; });
 
@@ -1563,7 +1568,8 @@ footer{border-top:1px solid var(--ink);padding:44px 0 60px;font-family:"Space Mo
       switchHtml +
       '<table class="btable"><thead><tr><th>Category</th><th style="text-align:right">Working</th><th style="text-align:right">Quoted</th></tr></thead>' +
       '<tbody id="budgetTbody"></tbody></table>' +
-      (note ? '<div class="note-strip">'+esc(note)+"</div>" : "");
+      (note ? '<div class="note-strip">'+esc(note)+"</div>" : "") +
+      (sheetUrl ? '<p style="margin-top:16px"><a href="'+esc(sheetUrl)+'" target="_blank" rel="noopener" style="font-family:\'Space Mono\',monospace;font-size:11px;letter-spacing:.08em;text-transform:uppercase;border-bottom:1px solid var(--rule);text-decoration:none">Open budget control sheet ↗</a></p>' : "");
 
     var tbody = document.getElementById("budgetTbody");
     function paint(useAlt){
@@ -1808,7 +1814,7 @@ footer{border-top:1px solid var(--ink);padding:44px 0 60px;font-family:"Space Mo
     var data = { budget: budgetRes.data || [], open: openRes.data || [], content: contentMap };
 
     safeRender("dashboard", function(el){ renderDashboard(el, data); });
-    safeRender("budget", function(el){ renderBudget(el, data.budget, contentMap.budget_note ? contentMap.budget_note.text : null); });
+    safeRender("budget", function(el){ renderBudget(el, data.budget, contentMap.budget_note ? contentMap.budget_note.text : null, contentMap.budget_note ? contentMap.budget_note.sheet_url : null); });
     safeRender("open", function(el){ renderOpenItems(el, data.open); });
 
     renderWithPayload("models", "models", contentMap, renderModels);

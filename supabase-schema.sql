@@ -98,7 +98,7 @@ create policy "admins can read admin content" on admin_content for select using 
 insert into budget_items (category, working_amount, alt_amount, quoted_amount, sort_order) values
   ('Venue · extended rental', null, null, null, 0),
   ('Models · 3 × ₱1,500', 4500, null, null, 1),
-  ('Food · 24 pax package', null, null, null, 2),
+  ('Food · 30 pax package', null, null, null, 2),
   ('Marketing · digital advertising', 500, null, null, 3),
   ('Printing · event poster', 240, null, null, 4),
   ('Materials · art and event supplies', null, null, null, 5),
@@ -126,7 +126,7 @@ insert into open_items (label, sort_order) values
   ('Final budget and downpayment', 7),
   ('Registration fee: is the event paid, and at what price', 19),
   ('Extended venue rental quote', 20),
-  ('Food package quote for 24', 21),
+  ('Food package quote for 30', 21),
   ('Contingency reserve amount', 22),
   ('Final registration and group assignment process', 8),
   ('Colour set for the three groups', 9),
@@ -204,7 +204,8 @@ insert into admin_content (section_key, payload) values
 }'::jsonb),
 
 ('budget_note', '{
-  "text": "Figures track KSS_Event_Budget_Control.xlsx. Known working costs total ₱5,240 (models ₱4,500, ads ₱500, poster ₱240). Venue, food, materials, props, incidentals and contingency are all still unpriced, so that total is not the event budget. The model rate is now ₱1,500 each, replacing the earlier ₱3,000 each and the ₱9,000/₱10,000 allocation. The workbook also assumes 24 × ₱1,000 registration = ₱24,000 revenue; that is a planning assumption only and no price is published on the public site. The earlier handwritten ₱11,500 and ₱43,000 have no components behind them and should not be quoted."
+  "text": "Figures track KSS_Event_Budget_Control.xlsx. Known working costs total ₱5,240 (models ₱4,500, ads ₱500, poster ₱240). Venue, food, materials, props, incidentals and contingency are all still unpriced, so that total is not the event budget. The model rate is now ₱1,500 each, replacing the earlier ₱3,000 each and the ₱9,000/₱10,000 allocation. The workbook's 24 × ₱1,000 = ₱24,000 registration-revenue assumption predates the move to 30 places and has not been recalculated; that figure and any updated one remain planning assumptions only, and no price is published on the public site. The earlier handwritten ₱11,500 and ₱43,000 have no components behind them and should not be quoted.",
+  "sheet_url": "https://docs.google.com/spreadsheets/d/1_s2qUACdDn79Tnj9gb95hZ4O6tPLokXJ1-A8tIX5yDs/edit?gid=1705866675#gid=1705866675"
 }'::jsonb),
 
 ('run_of_show', '{
@@ -262,19 +263,26 @@ insert into admin_content (section_key, payload) values
       ]
     },
     {
+      "time": "Break",
+      "name": "Food and rest",
+      "body": [
+        "A proper break for artists and models both, in the middle of the morning, with time for snacks and socialising.",
+        "Break length and food arrangements not yet confirmed."
+      ]
+    },
+    {
+      "time": "Rotation",
+      "name": "Transition",
+      "body": [
+        "Groups move together to the final station."
+      ]
+    },
+    {
       "time": "Rotation",
       "name": "Station 3 · themed",
       "accent": "st3",
       "body": [
         "Third theme, third model, final proper pose."
-      ]
-    },
-    {
-      "time": "Break",
-      "name": "Food and rest",
-      "body": [
-        "A proper break for artists and models both, with time for snacks and socialising.",
-        "Break length and food arrangements not yet confirmed."
       ]
     },
     {
@@ -309,11 +317,11 @@ insert into admin_content (section_key, payload) values
   "lede": "Colour tags decide where each group starts and where it goes next. The rotation below is the straight loop from the planning notes and is still a proposal.",
   "caption": "Proposed rotation — not yet confirmed",
   "groups": [
-    {"colour":"cy","name":"Cyan","seats":8,"seats_label":"8 seats · group 1","stations":["Station 1","Station 2","Station 3"]},
-    {"colour":"rd","name":"Red","seats":8,"seats_label":"8 seats · group 2","stations":["Station 2","Station 3","Station 1"]},
-    {"colour":"or","name":"Orange","seats":8,"seats_label":"8 seats · group 3","stations":["Station 3","Station 1","Station 2"]}
+    {"colour":"cy","name":"Cyan","seats":10,"seats_label":"10 seats · group 1","stations":["Station 1","Station 2","Station 3"]},
+    {"colour":"rd","name":"Red","seats":10,"seats_label":"10 seats · group 2","stations":["Station 2","Station 3","Station 1"]},
+    {"colour":"or","name":"Orange","seats":10,"seats_label":"10 seats · group 3","stations":["Station 3","Station 1","Station 2"]}
   ],
-  "seats_note": "24 maximum, 8 per group. The meeting first floated 8–10 per station; the later notes settle on 8.",
+  "seats_note": "30 maximum, 10 per group. The meeting first floated 8–10 per station; capacity has since been opened up to 30.",
   "tags_title": "Why colour tags",
   "tags_note": [
     "Each group knows its next station without being told twice.",
@@ -369,7 +377,7 @@ insert into admin_content (section_key, payload) values
     {"when":"A model arrives late or cannot attend","status":"No plan agreed. Backup models are still an open point."},
     {"when":"A station runs over its sequence","status":"No plan agreed. Who calls the cut is not assigned."},
     {"when":"The challenge runs long or has to be cut","status":"No plan agreed. Mechanics and timing not yet confirmed."},
-    {"when":"Attendance is under or over the 24 places","status":"No plan agreed. Group sizes and the over-capacity rule are not set."},
+    {"when":"Attendance is under or over the 30 places","status":"No plan agreed. Group sizes and the over-capacity rule are not set."},
     {"when":"Timer device fails or runs out of battery","status":"No plan agreed. No backup device or manual fallback named."},
     {"when":"Venue access is delayed past 9:00","status":"No plan agreed. No revised setup order for a late start."},
     {"when":"An attendee needs first aid","status":"No plan agreed. No first-aid owner or kit location recorded."},
@@ -472,6 +480,7 @@ on conflict (section_key) do nothing;
 -- update admin_content set payload = payload || '{"status":"Names TBC","status_note":"Fees and styling per station still open."}'::jsonb where section_key = 'models';
 -- update admin_content set payload = payload || '{"status":"Layout zones set","status_note":"Seating count still open until the layout is locked."}'::jsonb where section_key = 'venue';
 -- update admin_content set payload = payload || '{"status":"Not open","status_note":"Blocked on the age rule and the waiver.","status_flag":true}'::jsonb where section_key = 'registration_details';
+-- update admin_content set payload = payload || '{"sheet_url":"https://docs.google.com/spreadsheets/d/1_s2qUACdDn79Tnj9gb95hZ4O6tPLokXJ1-A8tIX5yDs/edit?gid=1705866675#gid=1705866675"}'::jsonb where section_key = 'budget_note';
 
 
 -- ---------------------------------------------------------------------
